@@ -1,0 +1,109 @@
+# Sample Linker Command File for CodeWarrior for ColdFire
+
+MEMORY 
+{
+	sdram		(RW)	: ORIGIN = 0x00000000, LENGTH = 0x01000000
+	vector_ram	(RW)	: ORIGIN = 0x00000000, LENGTH = 0x00000400
+	user_ram	(RWX)	: ORIGIN = 0x00000400, LENGTH = 0x00fffc00
+	sram		(RW)	: ORIGIN = 0x20000000, LENGTH = 0x00010000
+#	ext_io1		(RWX)	: ORIGIN = 0x80000000, LENGTH = 0x01000000
+#	ext_io3		(RWX)	: ORIGIN = 0x90000000, LENGTH = 0x00010000
+	flash_vect	(RWX)	: ORIGIN = 0xFFC00000, LENGTH = 0x00010000
+	flash_prgm2	(RWX)	: ORIGIN = 0xFFC00400, LENGTH = 0x003F0000
+}
+
+SECTIONS 
+{
+	___SP_INIT  = 0x2000fffe;
+    ___IPSBAR   = 0x40000000;
+	___EXT_IO1	= 0x80000000;
+	___EXT_IO3	= 0x90000000;
+
+	.sdram		: {} > sdram
+	.vector_ram	: {} > vector_ram
+	.sram		: {} > sram
+	.user_ram	: {} > user_ram
+	
+	.vectors :
+	{
+		vectors.s (.text)
+		. = ALIGN (0x04);
+	} > flash_vect
+
+	.text :
+	{
+		. = ALIGN (0x04);
+		*(.text)
+		. = ALIGN (0x04);
+		*(.rodata)
+		. = ALIGN (0x04);		
+		___PROG_END = .;
+		. = ALIGN (0x04);		
+		___DATA_ROM = .;
+	} > flash_prgm2
+
+	.data_bss : AT(___DATA_ROM)
+	{  
+		___DATA_RAM = .;
+		*(.data)
+		*(.sdata)
+		__DATA_END = .;
+
+		__SDA_BASE = ;
+		. = ALIGN (0x04);		
+
+		___BSS_START = .;
+		*(.sbss)
+		*(SCOMMON)
+		*(.bss)
+		*(COMMON)
+		___BSS_END = .;
+		. = ALIGN (0x04);
+
+		___sinit__ = .;
+		STATICINIT
+
+		___SP_END  =.;
+
+	} >> user_ram
+
+	_romp_at = ___DATA_ROM + SIZEOF(.data_bss);
+	.romp : AT(_romp_at)
+	{
+		__S_romp = _romp_at;
+#		WRITEW(___DATA_ROM);
+#		WRITEW(ADDR(.data_bss));
+#		WRITEW(SIZEOF(.data_bss));
+#		WRITEW(0);
+#		WRITEW(0);
+#		WRITEW(0);
+	}
+	
+	___VECTOR_RAM		= ADDR(.vector_ram);
+
+	___SDRAM			= ADDR(.sdram);
+	___SDRAM_SIZE		= 0x01000000;
+
+	___SRAM				= ADDR(.sram);
+	___SRAM_SIZE		= 0x00010000;
+
+	___EXT_FLASH		= ADDR(.vectors);
+	___EXT_FLASH_SIZE	= 0x00800000;
+
+	___FLASH_PRGM		= ADDR(.vectors);
+	___FLASH_PRGM_SIZE	= 0x003F0000;
+	
+	___STACK_SIZE = ___SP_INIT - ___SP_END;
+	__SP_INIT		= ___SP_INIT;
+	__PROG_END		= ___PROG_END;
+	__EXT_FLASH     = ___EXT_FLASH;
+
+	__START_BSS    	= ___BSS_END;
+	__START_SBSS   	= ___BSS_END;
+	__END_BSS     	= ___BSS_END;
+	__END_SBSS     	= ___BSS_END;
+
+
+	___mem_limit 	= ___BSS_END;
+	___stack_safety = 16;        
+}

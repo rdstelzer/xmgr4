@@ -1,0 +1,103 @@
+
+===================================================================
+Load bootloader firmware
+===================================================================
+
+1. Setup Cyclone pro for MCF5270/1 CPU, and Spansion Flash S29GL064N
+   (Model 04)
+2. Load file FPCBOOT(v2.3.0).S19 (or newer) into the flash.
+3. Power up pcb, via the craft port, set mac address, ip address and clock.
+   >date mm/dd/yy
+   >time hh:mm:ss
+   > mac 00:90:5b:xx:xx:xx
+   >ip 10.0.0.x
+4. Display the bootloader web page in a web browser.
+
+===================================================================
+Load application firmware
+===================================================================
+
+1. TFTP the file fpc_wi(v2.3.0).bin (or newer) to the FPC.
+2. Verify the file has loaded by reloading the bootloader web page.
+3. Start the application via the start button on the web page.
+4. Reload the web page, use "fpc" as the username, no password.
+
+===================================================================
+Point Six Manager Test
+===================================================================
+
+1. Setup a point manger with an IP address.
+2. Setup the PM with the CYPSS command
+   >CYPSS,T,T,1,z,S,6767
+3. Setup the PM with the CYDS command
+   >CYDS10.0.0.x (where x is the IP address in the FPC
+4. Enter the PM IP address and udp port number 6767 into
+   the FPC web configuration page / point manager settings.
+5. Verify the PM "xml status" from the link on the FPC main web page.
+
+===================================================================
+Sensor Test
+===================================================================
+
+1. Startup a number of sensors (Wi-TS, etc).
+2. Verify that the FPC "discovers" each sensor.
+   Each discovered sensor is sequentially added to the sensor list.
+3. Verify each reading from the sensor (activate digital or analog inputs).
+
+===================================================================
+Modbus Test
+===================================================================
+
+1. Setup the Modbus-485 port on the FPC to match the comm settings
+   on ModbusPoll. Using the Modbus register numbers from the sensor
+   web page, verify each Modbus register as polled from ModbusPoll.
+2. Setup the Modbus/Tcp port on the FPC to match the TCP settings
+   on ModbusPoll. Using the Modbus register numbers from the sensor
+   web page, verify each Modbus register as polled from ModbusPoll.
+
+===================================================================
+SNMP Test
+===================================================================
+
+1. Configure an SNMP community on the FPC. 
+2. Load and compile Fpc_wi(2.0).MIB into a Snmp manager data base.
+3. Poll and verify the Mib-2 readings.
+4. Poll and verify the sensor table.
+
+===================================================================
+Bacnet Test
+===================================================================
+
+1. Configure the Bacnet settings on the FPC. 
+2. Run a Bacnet discovery of the FPC.
+3. Verify each the sensors are part of the discovery.
+
+
+===================================================================
+418MHZ Test
+===================================================================
+
+1. Remove the Point Manager settings from the FPC. 
+2. From the configuration web page, delete all sensors from the data 
+   base.
+3. Power down the FPC and install the WI option card.
+4. Power back up and verify the same sensors are rediscovered.
+
+===================================================================
+900MHZ Test
+===================================================================
+
+1. Startup a number of 900MHZ sensors (Temp-900 etc).
+2. Verify these sensors are discovered.
+
+
+===================================================================
+Repeater Test
+===================================================================
+
+1. Disable the 418 receiver from the configuration web page.
+2. From the configuration web page, delete all sensors from the data 
+   base.
+3. Power up a Point Manger repeater device.
+4. Verify the sensors are discovered.
+
